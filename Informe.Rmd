@@ -7,6 +7,8 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(memisc)
+library(dplyr)
+base <- read_csv("C:/Users/Claudio/Desktop/Framingham/framingham.csv")
 ```
 
 
@@ -25,6 +27,7 @@ Se observó una diferencia en la prevalencia de CHD según sexo como muestra el 
 
 ```{r echo=FALSE}
 library(tidyverse)
+sexCHD <- base %>% group_by(male, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(PorcentCHD = nCHD*100/sum(nCHD)) %>% mutate(Sexo = if_else(male == 0, "Mujer", "Hombre"))
 ggplot(sexCHD, aes(x = Sexo, y = PorcentCHD)) + geom_col(aes(fill = TenYearCHD)) + theme_classic()
 ```
 
