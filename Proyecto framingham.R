@@ -1,5 +1,6 @@
 library(tidyverse)
 library(rmarkdown)
+library(memisc)
 
 #Bases separadas por sexo
 hom <- base %>% filter(male == 1) %>% select(age, currentSmoker, prevalentStroke, TenYearCHD, cigsPerDay, BPMeds, education, diabetes, totChol, sysBP, diaBP, BMI, BMIcat, heartRate, glucose, PAM)
@@ -39,3 +40,26 @@ ggplot(NivEdCHD, aes(x=education, y=Porcentaje)) + geom_col(aes(fill = TenYearCH
 
 ##Tabla nivel educacional 
 edCHD <- base %>% group_by(education, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD))
+
+
+
+> broom::glance(chisq.test(base$education, base$TenYearCHD))
+# A tibble: 1 x 4
+statistic     p.value parameter method                    
+<dbl>       <dbl>     <int> <chr>                     
+  1      32.0 0.000000519         3 Pearson's Chi-squared test
+> broom::glance(chisq.test(base$education, base$TenYearCHD))$p.value
+
+
+# Gráfico por nivel educacional 
+ggplot(edCHD, aes(x=Nivel_educacional, y=Porcentaje, fill= FALSE)) + geom_col() + theme_classic() + theme(legend.position = "none")+ scale_x_continuous(breaks = c(1,2,3,4), labels = c("Analfabeto", "Básica", "Secundaria", "Universitaria")) + scale_y_continuous(breaks = c(seq(0, 100, by = 5)))
+
+
+# Base sólo hombres
+CHDhom <- base %>% group_by(TenYearCHD) %>% filter(male == 1)
+
+#Base Sólo mujeres
+CHDmuj <- base %>% group_by(TenYearCHD) %>% filter(male == 0)
+
+#tabla CHD por sexo
+sexCHD <- base %>% group_by(male, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD)) %>% filter(TenYearCHD == 1) %>% mutate(Sexo = if_else(male == 0, "Mujer", "Hombre"))
