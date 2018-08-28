@@ -8,6 +8,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(memisc)
 library(dplyr)
+library(stats)
 base <- read_csv("C:/Users/Claudio/Desktop/Framingham/framingham.csv")
 ```
 
@@ -31,10 +32,14 @@ sexCHD <- base %>% group_by(male, TenYearCHD) %>%  summarise(nCHD = n()) %>% mut
 ggplot(sexCHD, aes(x = Sexo, y = PorcentCHD)) + geom_col(aes(fill = TenYearCHD)) + theme_classic()
 ```
 
+Con respecto a la posible influencia del nivel educacional en la prevalencia de eventos coronarios, se vio una diferencia significativa entre los grupos (`r chisq.test(base$education, base$TenYearCHD)`). Esto se puede apreciar en el gráfico 2. 
 
 
-
-
+```{r echo=FALSE}
+library(tidyverse)
+edCHD <- base %>% group_by(education, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD))
+ggplot(edCHD, aes(x=education, y=Porcentaje)) + geom_col(aes(fill = TenYearCHD)) + theme_classic()
+```
 
 
 
