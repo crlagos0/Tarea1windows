@@ -1,0 +1,37 @@
+---
+title: "Riesgo Cardiovascular: Cohorte de Framingham"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(memisc)
+```
+
+
+##Introducción##  
+
+La enfermedad cardiovascular (ECV) da cuenta actualmente de la mayor cantidad de muertes en los países occidentales. Ella considera los accidentes cerebrovasculares (AVE) y el infarto agudo al miocardio(IAM), hoy en día las dos primeras causas de muerte a nivel mundial. 
+
+En el presente informe se presentan los resultados de un análisis preliminar con respecto a posibles factores de riesgo presentes en una cohorte de 10 años de seguimiento, y el riesgo de presentar IAM. 
+
+
+##Análisis Preliminar##
+
+En esta cohorte prospectiva se estudió la posible influencia de diversos factores de riesgo CV. 
+
+Se observó una diferencia en la prevalencia de CHD según sexo como muestra el gráfico 1. 
+
+```{r echo=FALSE}
+library(tidyverse)
+ggplot(sexCHD, aes(x = Sexo, y = PorcentCHD)) + geom_col(aes(fill = TenYearCHD)) + theme_classic()
+```
+
+
+
+
+
+
+
+
