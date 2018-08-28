@@ -10,6 +10,8 @@ library(memisc)
 library(dplyr)
 library(stats)
 base <- read_csv("C:/Users/Claudio/Desktop/Framingham/framingham.csv")
+CHDhom <- base %>% group_by(TenYearCHD) %>% filter(male == 1)
+CHDmuj <- base %>% group_by(TenYearCHD) %>% filter(male == 0)
 ```
 
 
@@ -20,26 +22,40 @@ La enfermedad cardiovascular (ECV) da cuenta actualmente de la mayor cantidad de
 En el presente informe se presentan los resultados de un análisis preliminar con respecto a posibles factores de riesgo presentes en una cohorte de 10 años de seguimiento, y el riesgo de presentar IAM. 
 
 
-##Análisis Preliminar##
+##**Análisis Preliminar**##
 
-En esta cohorte prospectiva se estudió la posible influencia de diversos factores de riesgo CV. 
+En esta cohorte prospectiva se estudió la posible relación entre diversos factores de riesgo y algún evento coronario (CHD) durante el período de seguimiento, como se muestra a continuación.
 
-Se observó una diferencia en la prevalencia de CHD según sexo como muestra el gráfico 1. 
+***
+***
 
-```{r echo=FALSE}
+
+####*Diferencias por sexo*####
+
+Se observó una diferencia significativa en la prevalencia de CHD según sexo como muestra el gráfico 1 (CHD en hombres fue `r round(percent(CHDhom$TenYearCHD==1, ci=FALSE, total=FALSE), 2)`% ; en mujeres fue `r round(percent(CHDmuj$TenYearCHD==1, ci=FALSE, total=FALSE), 2)`%; p= `r format((broom::glance(chisq.test(base$male, base$TenYearCHD))$p.value), scientific=FALSE)`)  
+
+```{r echo=FALSE, fig.cap= "Gráfico 1: Porcentaje de eventos coronarios según género"}
 library(tidyverse)
-sexCHD <- base %>% group_by(male, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(PorcentCHD = nCHD*100/sum(nCHD)) %>% mutate(Sexo = if_else(male == 0, "Mujer", "Hombre"))
-ggplot(sexCHD, aes(x = Sexo, y = PorcentCHD)) + geom_col(aes(fill = TenYearCHD)) + theme_classic()
-```
-
-Con respecto a la posible influencia del nivel educacional en la prevalencia de eventos coronarios, se vio una diferencia significativa entre los grupos (`r chisq.test(base$education, base$TenYearCHD)`). Esto se puede apreciar en el gráfico 2. 
-
-
-```{r echo=FALSE}
-library(tidyverse)
-edCHD <- base %>% group_by(education, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD))
-ggplot(edCHD, aes(x=education, y=Porcentaje)) + geom_col(aes(fill = TenYearCHD)) + theme_classic()
+sexCHD <- base %>% group_by(male, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD)) %>% filter(TenYearCHD == 1) %>% mutate(Sexo = if_else(male == 0, "Mujer", "Hombre"))
+ggplot(sexCHD, aes(x = Sexo, y = Porcentaje)) + geom_col(aes(fill = TenYearCHD)) + theme_classic() + theme(legend.position = "none")
 ```
 
 
+***
+***
+
+
+####*Influencia del nivel educacional*####
+
+Con respecto a la posible influencia del nivel educacional en la prevalencia de eventos coronarios, se vio una diferencia significativa entre los grupos (p = `r format((broom::glance(chisq.test(base$education, base$TenYearCHD))$p.value), scientific=FALSE)`). Esto se puede apreciar en el gráfico 2. 
+
+
+```{r echo=FALSE, warning=FALSE, fig.cap= "Gráfico 2: Porcentaje de eventos coronarios según nivel educacional" }
+library(tidyverse)
+edCHD <- base %>% group_by(education, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD)) %>% filter(TenYearCHD == 1)
+colnames(edCHD) <- c("Nivel_educacional", "CHD", "PropEd", "Porcentaje")
+ggplot(edCHD, aes(x=Nivel_educacional, y=Porcentaje, fill= FALSE)) + geom_col() + theme_classic() + theme(legend.position = "none")+ scale_x_continuous(breaks = c(1,2,3,4), labels = c("Analfabeto", "Básica", "Secundaria", "Universitaria")) + scale_y_continuous(breaks = c(seq(0, 100, by = 5)))
+```
+
+Esta información nos muestra que el grupo de individuos con menor nivel educacional presenta una mayor prevalencia de eventos coronarios que el resto de individuos, indicando la presencia de determinantes socioeconómicos en el riesgo de presentar infarto agudo al miocardio. 
 
