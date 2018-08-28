@@ -23,6 +23,19 @@ sexCHD <- base %>% filter(!is.na(male)) %>% group_by(male, TenYearCHD) %>% summa
 #Chi cuadrado tabaquismo vs CHD risk
 Xsmoke <- chisq.test(base$currentSmoker, base$TenYearCHD)
 
+##Porcentaje de individuos sexo##
+porhom <- percent(base$male == 1, ci=TRUE, ci.level = .95)
+pormuj <- percent(base$male == 0, ci=TRUE, ci.level = .95)
+
+##Gráfico porcentaje con IAM segun sexo
+ggplot(sexCHD, aes(x = Sexo, y = PorcentCHD)) + geom_col(aes(fill = TenYearCHD)) + theme_classic()
 
 
+##Tabla por nivel educacional
+NivEdCHD <- NivEdCHD %>% mutate(Porcentaje = Total*100/sum(Total))
 
+##Gráfico por nivel educacional
+ggplot(NivEdCHD, aes(x=education, y=Porcentaje)) + geom_col(aes(fill = TenYearCHD)) + theme_classic()
+
+##Tabla nivel educacional 
+base %>% group_by(education, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD))
