@@ -38,4 +38,4 @@ NivEdCHD <- NivEdCHD %>% mutate(Porcentaje = Total*100/sum(Total))
 ggplot(NivEdCHD, aes(x=education, y=Porcentaje)) + geom_col(aes(fill = TenYearCHD)) + theme_classic()
 
 ##Tabla nivel educacional 
-base %>% group_by(education, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD))
+edCHD <- base %>% group_by(education, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD))
