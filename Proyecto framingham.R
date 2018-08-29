@@ -63,3 +63,44 @@ CHDmuj <- base %>% group_by(TenYearCHD) %>% filter(male == 0)
 
 #tabla CHD por sexo
 sexCHD <- base %>% group_by(male, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD)) %>% filter(TenYearCHD == 1) %>% mutate(Sexo = if_else(male == 0, "Mujer", "Hombre"))
+
+
+# Anova BMI segun educacion con infarto
+broom::glance(aov(test3$BMI~test3$education))$p.value
+pairwise.t.test(test3$BMI, test3$education, p.adjust.method = "bonf")
+
+# Anova BMI segun educacion todos
+broom::glance(aov(test4$BMI~test4$education))$p.value
+pairwise.t.test(test4$BMI, test4$education, p.adjust.method = "bonf")
+
+# comparacion tabaquismo por grupo educacional
+broom::glance(chisq.test(base$education, base$currentSmoker))$p.value
+
+# comparacion diabetes por grupo educacional (no significativo)
+chisq.test(base$education, base$diabetes)
+
+# hipertension por grupo educacional
+broom::glance(chisq.test(base$education, base$prevalentHyp))$p.value
+
+# colesterol por grupo educacional (no significativo)
+broom::glance(aov(base$totChol~base$education))$p.value
+
+#Uso de antihipertensivos por grupo educacional (no significativo)
+broom::glance(chisq.test(base$education, base$BPMeds))$p.value
+
+# tabaquismo por grupo educacional comparado 
+broom::glance(chisq.test(base$education, base$currentSmoker))$p.value
+
+# Tabla eventos coronarios por educacion
+TablaEdCHD <- base %>% mutate(Educacion = if_else(education == 1, "Analfabeto", if_else(education==2, "Básica", if_else(education==3, "Secundaria", if_else(education==4, "Universitaria", ""))))) %>% filter(!is.na(Educacion)) %>%  group_by(Educacion, TenYearCHD) %>% summarise(total = n()) %>% mutate(Promedio = 100*total/sum(total))%>% filter(TenYearCHD==1)%>% dplyr::select(Educacion, Promedio)
+
+
+#Tablas HTA y DM
+HTACHD <- base %>% group_by(prevalentHyp, TenYearCHD) %>% summarise(Total = n()) %>% mutate(Porcentaje = Total*100/sum(Total)) %>% filter(TenYearCHD == 1) %>% mutate(Diagnostico = if_else(prevalentHyp == 0, "Sano", "Hipertenso"))
+DMCHD <- base %>% group_by(diabetes, TenYearCHD) %>% summarise(Total = n()) %>% mutate(Porcentaje = Total*100/sum(Total)) %>% filter(TenYearCHD == 1) %>% mutate(Diagnostico = if_else(diabetes == 0, "Sano", "Diabetico"
+
+# HTA vs CHD
+broom::glance(chisq.test(base$prevalentHyp, base$TenYearCHD))$p.value
+
+# DM vs CHD 
+broom::glance(chisq.test(base$diabetes, base$TenYearCHD))$p.value
