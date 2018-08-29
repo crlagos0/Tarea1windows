@@ -1,5 +1,6 @@
 ---
-title: "Riesgo Cardiovascular: Cohorte de Framingham"
+title: "Riesgo Cardiovascular: Cohorte de Framingham Original, análisis exploratorio"
+author: Claudio Lagos C. 
 output: html_document
 ---
 
@@ -19,14 +20,14 @@ DMCHD <- base %>% group_by(diabetes, TenYearCHD) %>% summarise(Total = n()) %>% 
 ```
 
 
-##Introducción##  
+##*Introducción*##  
 
 La enfermedad cardiovascular (ECV) da cuenta actualmente de la mayor cantidad de muertes en los países occidentales. Ella considera los accidentes cerebrovasculares (AVE) y el infarto agudo al miocardio(IAM), hoy en día las dos primeras causas de muerte a nivel mundial. 
 
 En el presente informe se presentan los resultados de un análisis preliminar con respecto a posibles factores de riesgo presentes en una cohorte de 10 años de seguimiento, y el riesgo de presentar IAM. 
 
 
-##**Análisis Preliminar**##
+###*Análisis Preliminar*###
 
 En esta cohorte prospectiva se estudió la posible relación entre diversos factores de riesgo y algún evento coronario (CHD) durante el período de seguimiento, como se muestra a continuación.
 
