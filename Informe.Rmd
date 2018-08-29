@@ -12,6 +12,10 @@ library(stats)
 base <- read_csv("C:/Users/Claudio/Desktop/Framingham/framingham.csv")
 CHDhom <- base %>% group_by(TenYearCHD) %>% filter(male == 1)
 CHDmuj <- base %>% group_by(TenYearCHD) %>% filter(male == 0)
+TablaEdCHD <- base %>% mutate(Educacion = if_else(education == 1, "Analfabeto", if_else(education==2, "Básica", if_else(education==3, "Secundaria", if_else(education==4, "Universitaria", ""))))) %>% filter(!is.na(Educacion)) %>%  group_by(Educacion, TenYearCHD) %>% summarise(total = n()) %>% mutate(Porcentaje = 100*total/sum(total))%>% filter(TenYearCHD==1)%>% dplyr::select(Educacion, Porcentaje)
+test4 <- base %>% filter(!is.na(education)) %>% group_by(education)
+HTACHD <- base %>% group_by(prevalentHyp, TenYearCHD) %>% summarise(Total = n()) %>% mutate(Porcentaje = Total*100/sum(Total)) %>% filter(TenYearCHD == 1) %>% mutate(Diagnostico = if_else(prevalentHyp == 0, "Sano", "Hipertenso"))
+DMCHD <- base %>% group_by(diabetes, TenYearCHD) %>% summarise(Total = n()) %>% mutate(Porcentaje = Total*100/sum(Total)) %>% filter(TenYearCHD == 1) %>% mutate(Diagnostico = if_else(diabetes == 0, "Sano", "Diabetico"))
 ```
 
 
@@ -47,7 +51,7 @@ ggplot(sexCHD, aes(x = Sexo, y = Porcentaje)) + geom_col(aes(fill = TenYearCHD))
 
 ####*Influencia del nivel educacional*####
 
-Con respecto a la posible influencia del nivel educacional en la prevalencia de eventos coronarios, se vio una diferencia significativa entre los grupos (p = `r format((broom::glance(chisq.test(base$education, base$TenYearCHD))$p.value), scientific=FALSE)`). Esto se puede apreciar en el gráfico 2. 
+Con respecto a la posible influencia del nivel educacional en la prevalencia de eventos coronarios, se vio una diferencia significativa entre los grupos (p = `r format((broom::glance(chisq.test(base$education, base$TenYearCHD))$p.value), scientific=FALSE)`). Esto se puede apreciar en el gráfico 2 y en la tabla 1. 
 
 
 ```{r echo=FALSE, warning=FALSE, fig.cap= "Gráfico 2: Porcentaje de eventos coronarios según nivel educacional" }
@@ -55,7 +59,43 @@ library(tidyverse)
 edCHD <- base %>% group_by(education, TenYearCHD) %>%  summarise(nCHD = n()) %>% mutate(Porcentaje = nCHD*100/sum(nCHD)) %>% filter(TenYearCHD == 1)
 colnames(edCHD) <- c("Nivel_educacional", "CHD", "PropEd", "Porcentaje")
 ggplot(edCHD, aes(x=Nivel_educacional, y=Porcentaje, fill= FALSE)) + geom_col() + theme_classic() + theme(legend.position = "none")+ scale_x_continuous(breaks = c(1,2,3,4), labels = c("Analfabeto", "Básica", "Secundaria", "Universitaria")) + scale_y_continuous(breaks = c(seq(0, 100, by = 5)))
+
+```
+***
+***
+```{r echo=FALSE}
+library(rmarkdown)
+library(knitr)
+TablaEdCHD <- base %>% mutate(Educacion = if_else(education == 1, "Analfabeto", if_else(education==2, "Básica", if_else(education==3, "Secundaria", if_else(education==4, "Universitaria", ""))))) %>% filter(!is.na(Educacion)) %>%  group_by(Educacion, TenYearCHD) %>% summarise(total = n()) %>% mutate(Porcentaje = 100*total/sum(total))%>% filter(TenYearCHD==1)%>% dplyr::select(Educacion, Porcentaje)
+kable(TablaEdCHD, digits = 2, align = "c", caption = "Tabla 1: Se muestran los porcentajes de individuos con eventos coronarios por nivel educacional")
+
 ```
 
-Esta información nos muestra que el grupo de individuos con menor nivel educacional presenta una mayor prevalencia de eventos coronarios que el resto de individuos, indicando la presencia de determinantes socioeconómicos en el riesgo de presentar infarto agudo al miocardio. 
+Esta información nos muestra que el grupo de individuos con menor nivel educacional (NE) presenta una mayor prevalencia de eventos coronarios que el resto de la muestra, indicando la presencia de determinantes socioeconómicos en el riesgo de presentar infarto agudo al miocardio. Para entender mejor la influencia del NE en una mayor prevalencia de CHD, se evaluó la asociación con las otras variables en estudio. Se encontró asociación asociación de analfabetismo con un mayor índice de masa corporal (p= `r format((broom::glance(aov(test4$BMI~test4$education))$p.value), scientific=FALSE)`; se usó corrección de Bonferroni), con una mayor prevalencia de tabaquismo (p= `r format((broom::glance(chisq.test(base$education, base$currentSmoker))$p.value), scientific=FALSE)`) e hipertensión (p= `r format((broom::glance(chisq.test(base$education, base$prevalentHyp))$p.value), scientific=FALSE)`). No se encontró asociación del NE con una mayor prevalencia de diabetes, hipercolesterolemia ni una diferencia en la adherencia a terapia antihipertensiva entre los grupos. 
+
+
+***
+***
+
+####*Patologías crónicas y CHD*####
+
+Como se muestra en los gráficos 3 y 4 respectivamente, tanto la hipertensión (HTA) como la diabetes (DM) son patologías crónicas determinantes de una mayor incidencia de eventos coronarios. 
+***
+***
+```{r echo=FALSE, fig.cap= "Gráfico 3: Porcentaje de individuos hipertensos vs sanos que presentaron eventos coronarios."}
+ggplot(HTACHD, aes(x = Diagnostico, y = Porcentaje)) + geom_col(aes(fill = TenYearCHD)) + theme_classic() + theme(legend.position = "none")
+
+```
+***
+***
+```{r echo=FALSE, fig.cap= "Gráfico 4: Porcentaje de individuos diabéticos vs sanos que presentaron eventos coronarios."}
+ggplot(DMCHD, aes(x = Diagnostico, y = Porcentaje)) + geom_col(aes(fill = TenYearCHD)) + theme_classic() + theme(legend.position = "none")
+
+```
+***
+***
+La diferencia en la prevalencia de CHD según la presencia de HTA fue significativa (p= `r format((broom::glance(chisq.test(base$prevalentHyp, base$TenYearCHD))$p.value), scientific=FALSE)`), al igual que en el caso de pacientes diabéticos (p= `r format((broom::glance(chisq.test(base$diabetes, base$TenYearCHD))$p.value), scientific=FALSE)`). 
+
+
+Sorpresivamente, no se obtuvo diferencias significativas en la incidencia de eventos coronarios con el hábito tabáquico. Esto pudiese estar explicado por la presencia de alguna variable confundente que debe ser ajustada en un modelo multivariado, o bien por la presencia de sesgo en la selección de pacientes. 
 
